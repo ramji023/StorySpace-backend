@@ -1,7 +1,7 @@
 export class apiResponse {
     statusCode: number;
     message: string;
-    data: object;
+    data?: object;
     success: boolean;
     constructor(
         statusCode: number,

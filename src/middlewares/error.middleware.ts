@@ -12,13 +12,13 @@ export const globalErrorHandler = (err: apiError, req: Request, res: Response, n
     const errors = checkApiError ? err.errors : [];
     const stack = checkApiError ? err?.stack : "";
 
-    res.json(
+    res.status(500).json(
         {
             statusCode,
             message,
             success,
-            errors,
             data,
+            errors,
             stack,
         }
     )
