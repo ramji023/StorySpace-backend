@@ -18,7 +18,7 @@ export const findUserByTheirEmail = async (username: string, email: string) => {
         {
             $or: [{ username }, { email }]
         }
-    )
+    ).select("-socialId -refreshToken")
     if (existedUser) {
         return existedUser;
     }
