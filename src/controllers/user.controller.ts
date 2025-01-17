@@ -40,9 +40,10 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
         }
         res.cookie("AccessToken", accessToken, options)
         res.cookie("RefreshToken", refreshToken, options);
-        res.status(201).json(
-            new apiResponse(201, "User registration successfully..", findUser)
-        )
+        // res.status(201).json(
+        //     new apiResponse(201, "User registration successfully..", findUser)
+        // )
+        res.redirect('http://localhost:5173/');
     } else {
         throw new apiError(400, "something is wrong while saving in database")
     }

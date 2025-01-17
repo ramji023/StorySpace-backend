@@ -4,7 +4,7 @@ import { apiError } from "../utils/apiError";
 
 // find the user by their id
 export const findById = async (userId: string) => {
-    const existedUser = await User.findById(userId);
+    const existedUser = await User.findById(userId).select("-socialId -refreshToken");
     if (existedUser) {
         return existedUser;
     }
