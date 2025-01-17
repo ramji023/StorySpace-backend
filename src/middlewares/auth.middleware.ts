@@ -11,7 +11,7 @@ export const verifyUser = asyncHandler(async (req: Request, res: Response, next:
     }
 
     const token = req.cookies.AccessToken;
-
+    console.log(token)
     try {
         // Decode and verify the JWT
         const decodeToken = jwt.verify(token, process.env.ACCESS_TOKEN_KEY!) as JwtPayload;
@@ -19,12 +19,12 @@ export const verifyUser = asyncHandler(async (req: Request, res: Response, next:
         console.log("Decoded token:", decodeToken);
 
         // check the token contains the _id property
-        if (typeof decodeToken === "object" && "_id" in decodeToken) {
-            const userId = decodeToken._id as string;
+        if (typeof decodeToken === "object" && "id" in decodeToken) {
+            const userId = decodeToken.id as string;
 
             // Check if the user in the database
+            console.log(userId)
             const existedUser = await findById(userId);
-
             if (existedUser) {
                 req.user = existedUser;
                 return next();

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { apiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { apiError } from "../utils/apiError";
@@ -11,6 +11,9 @@ import { findUserByTheirEmail, generateAccessAndRefreshToken } from "../services
 export const testRoute = asyncHandler(async (req: Request, res: Response) => {
     res.json(new apiResponse(201, "controller run successfully.I am your server", {}))
 })
+
+
+
 
 // when user registeration through google auth20
 export const userRegistration = asyncHandler(async (req: any, res: Response) => {
@@ -29,11 +32,11 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
     )
 
     const findUser = await findUserByTheirEmail(user.username, user.email)
-    console.log("after saving in database : ",findUser);
-    
+    console.log("after saving in database : ", findUser);
+
     if (findUser) {
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(findUser._id.toString())
-       console.log("jwt tokens are : ",{accessToken,refreshToken})
+        console.log("jwt tokens are : ", { accessToken, refreshToken })
         const options = {
             httpOnly: true,
             secure: true,
@@ -48,4 +51,18 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
         throw new apiError(400, "something is wrong while saving in database")
     }
 
+})
+
+
+
+// return the current user data
+export const currentUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+        throw new apiError(404, "user is not authorized")
+    }
+    const user = req.user
+    console.log("authorized current user is : ",user)
+    return res.status(201).json(
+        new apiResponse(201, "fetch current user successfully", user)
+    )
 })
