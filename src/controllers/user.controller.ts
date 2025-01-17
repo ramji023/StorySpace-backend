@@ -3,8 +3,8 @@ import { apiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { apiError } from "../utils/apiError";
 import { User } from "../model/user.model";
-import { findUserByTheirEmail, generateAccessAndRefreshToken } from "../services/mongoose.service";
-
+import { findById, findUserByTheirEmail, generateAccessAndRefreshToken } from "../services/mongoose.service";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 
 // test the route
@@ -56,13 +56,49 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
 
 
 // return the current user data
-export const currentUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+export const currentUser = asyncHandler(async (req: Request, res: Response) => {
     if (!req.user) {
         throw new apiError(404, "user is not authorized")
     }
     const user = req.user
-    console.log("authorized current user is : ",user)
+    console.log("authorized current user is : ", user)
     return res.status(201).json(
         new apiResponse(201, "fetch current user successfully", user)
     )
+})
+
+
+
+// refreshed the access and refresh token
+export const refreshedTokens = asyncHandler(async (req: Request, res: Response) => {
+    // get the refreshed token
+    if (!req.cookies || !req.cookies.RefreshToken) {
+        throw new apiError(401, "user don't have any tokens")
+    }
+    const CurrrefreshToken = req.cookies.RefreshToken;
+
+    const decodedRefreshToken = jwt.verify(CurrrefreshToken, process.env.REFRESH_TOKEN_KEY!) as JwtPayload;
+    if (!decodedRefreshToken) {
+        throw new apiError(404, "there is something wrong while refreshing the refresh token")
+    }
+    const userId = decodedRefreshToken.id as string;
+    const findUser = await findById(userId);
+
+    if (!findUser) {
+        throw new apiError(404, "user is not in database");
+    }
+    if (findUser) {
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(userId)
+        const options = {
+            httpOnly: true,
+            secure: true,
+        }
+        res.cookie("AccessToken", accessToken, options)
+        res.cookie("RefreshToken", refreshToken, options);
+        res.status(202).json(
+            new apiResponse(203, "refrsh both tokens successfully", findUser)
+        )
+    }
+
+
 })

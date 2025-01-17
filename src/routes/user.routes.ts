@@ -1,4 +1,4 @@
-import { currentUser, testRoute } from "../controllers/user.controller";
+import { currentUser, refreshedTokens, testRoute } from "../controllers/user.controller";
 import { Router } from "express";
 import passport from "passport";
 const router = Router();
@@ -13,6 +13,7 @@ router.route("/auth/google/callback").get(passport.authenticate('google', { fail
 
 //get the current user
 router.route("/current-user").get(verifyUser, currentUser);
-
+// refresh the token
+router.route("/refreshed-token").post(refreshedTokens);
 
 export default router;
