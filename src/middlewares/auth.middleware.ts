@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { NextFunction, Response, Request } from "express";
 import { apiError } from "../utils/apiError";
 import { findById } from "../services/mongoose.service";
+import { userDocument } from "../model/user.model";
 
 export const verifyUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     // Check if the client sent cookies and if the AccessToken exists
@@ -24,9 +25,9 @@ export const verifyUser = asyncHandler(async (req: Request, res: Response, next:
 
             // Check if the user in the database
             // console.log(userId)
-            const existedUser = await findById(userId);
+            const existedUser= await findById(userId);
             if (existedUser) {
-                req.user = existedUser;
+                req.user = existedUser as userDocument;
                 return next();
             } else {
                 throw new apiError(404, "No user found with the provided token");

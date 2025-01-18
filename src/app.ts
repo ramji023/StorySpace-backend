@@ -34,7 +34,9 @@ app.use(passport.initialize())// use and initialize passport
 import userRoute from "./routes/user.routes"
 app.use("/api/v1/users", userRoute);
 
-
+//handle all story based actions like add-stories,save-stories,fetch-AllStories
+import storyRoute from "./routes/story.routes"
+app.use("/api/v1/story",storyRoute);
 
 
 

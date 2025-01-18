@@ -1,4 +1,4 @@
-import mongoose, { Schema, Model } from "mongoose";
+import mongoose, { Schema, Model, Types } from "mongoose";
 import jwt from "jsonwebtoken";
 
 interface userInput {
@@ -8,7 +8,8 @@ interface userInput {
     refreshToken?: string,
 }
 
-interface userDocument extends userInput, Document {
+export interface userDocument extends userInput, Document {
+    _id : mongoose.Types.ObjectId,
     generateAccessToken(): string,
     generateRefreshToken(): string,
 }
