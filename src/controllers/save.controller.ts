@@ -4,7 +4,7 @@ import { userDocument } from "../model/user.model";
 import { apiError } from "../utils/apiError";
 import { apiResponse } from "../utils/apiResponse";
 import mongoose from "mongoose";
-import { Save } from "model/saveStory.model";
+import { Save } from "../model/saveStory.model";
 
 // handle toogle the like button by user
 export const toggleSaveStories = asyncHandler(async (req: Request, res: Response) => {

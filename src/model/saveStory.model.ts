@@ -1,20 +1,22 @@
-import { Schema } from "mongoose"
-import mongoose from "mongoose"
+import { Schema } from "mongoose";
+import mongoose from "mongoose";
 
-
-const saveStorySchema = new Schema({
+const saveStorySchema = new Schema(
+  {
     userId: {
-        tpye: Schema.Types.ObjectId,
-        ref: "User",
+      type: Schema.Types.ObjectId, 
+      ref: "User",
     },
     storyId: {
-        type: Schema.Types.ObjectId,
-        ref: "Story",
+      type: Schema.Types.ObjectId,
+      ref: "Story",
     },
     status: {
-        type: String,
-        enum: ["save", "unsaved"],
-    }
-}, { timestamps: true })
+      type: String,
+      enum: ["save", "unsaved"],
+    },
+  },
+  { timestamps: true }
+);
 
-export const Save = mongoose.model("Save", saveStorySchema)
+export const Save = mongoose.model("Save", saveStorySchema);

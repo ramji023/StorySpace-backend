@@ -1,4 +1,4 @@
-import express,{Request,Response} from "express";
+import express, { Request, Response } from "express";
 import http from "http";
 import cors from "cors";
 import "dotenv/config";
@@ -36,7 +36,20 @@ app.use("/api/v1/users", userRoute);
 
 //handle all story based actions like add-stories,save-stories,fetch-AllStories
 import storyRoute from "./routes/story.routes"
-app.use("/api/v1/story",storyRoute);
+app.use("/api/v1/story", storyRoute);
+
+//handle all user-like based actions
+import likeRoute from "./routes/likes.routes"
+app.use("/api/v1/likes", likeRoute)
+
+//handle all user-comment based action
+import commentRoute from "./routes/comment.routes"
+app.use("/api/v1/comments", commentRoute)
+
+//handle all user-saveStory based action
+import saveStory from "./routes/saveStory.routes"
+app.use("/api/v1/saveStories", saveStory);
+
 
 
 
