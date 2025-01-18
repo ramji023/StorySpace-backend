@@ -10,6 +10,10 @@ const saveStorySchema = new Schema({
     storyId: {
         type: Schema.Types.ObjectId,
         ref: "Story",
+    },
+    status: {
+        type: String,
+        enum: ["save", "unsaved"],
     }
 }, { timestamps: true })
 
