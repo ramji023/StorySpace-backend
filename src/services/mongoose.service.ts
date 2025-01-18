@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+import { Story } from "../model/story.model";
 import { User } from "../model/user.model"
 import { apiError } from "../utils/apiError";
 
@@ -43,4 +45,37 @@ export const generateAccessAndRefreshToken = async (userID: string) => {
     } catch (err) {
         throw new apiError(400, "something is wrong while generating the tokens")
     }
+}
+
+
+
+//find all the recipe by User
+export const findAllStoryByUserId = async (userId: string) => {
+    const pipeline = [
+        {
+            $match: {
+                userID: new Types.ObjectId(userId)
+            }
+        }
+    ]
+    const allStories = await Story.aggregate(pipeline);
+    console.log("all stories fetched for current user : ",allStories);
+    
+    // If no stories are found, return an empty array
+    if (allStories.length === 0) {
+        return [];
+    }
+    const sortStories = allStories.map((story) => ({
+        id: story._id,
+        title: story.title,
+        snippet: story.content.substring(0, 100) + "...", // Extract snippet
+        image: extractImageFromContent(story.content) || "default-image-url.jpg",
+    }));
+    return sortStories;
+}
+// Function to extract image from content
+function extractImageFromContent(content: string): string | null {
+    const regex = /<img\s+[^>]*src="([^"]*)"[^>]*>/;
+    const match = content.match(regex);
+    return match ? match[1] : null; // Return the first image URL or null
 }

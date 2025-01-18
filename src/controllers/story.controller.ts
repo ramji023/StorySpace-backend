@@ -4,8 +4,9 @@ import { Request, Response } from "express";
 import { Story } from "../model/story.model";
 import { User, userDocument } from "../model/user.model";
 import { apiResponse } from "../utils/apiResponse";
+import { findAllStoryByUserId } from "../services/mongoose.service";
 
-// save all the stories in database
+// save new story created by User in database
 export const saveNewStories = asyncHandler(async (req: Request, res: Response) => {
     const data = req.body;
     console.log("got story data by client-side", data);
@@ -32,4 +33,27 @@ export const saveNewStories = asyncHandler(async (req: Request, res: Response) =
         throw new apiError(404, "something went wrong while saving story in database..")
     }
 
+})
+
+
+// get all the storeis created by an authorized user
+export const getAllStoriesByUserId = asyncHandler(async (req: Request, res: Response) => {
+    const user = req.user as userDocument;
+    if (!user) {
+        throw new apiError(404, "user is not authorized")
+    }
+    const userId = user._id;
+
+    const result = await findAllStoryByUserId(userId.toString());
+    console.log("all story is : ",result)
+    if (result.length === 0) {
+        return res.status(201).json(
+            new apiResponse(201, "there is no story you have created", {})
+        )
+    }
+    if (result.length !== 0) {
+        return res.status(200).json(
+            new apiResponse(200, "fetch all story by current user", result)
+        )
+    }
 })
