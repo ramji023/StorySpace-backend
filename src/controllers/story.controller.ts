@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { Story } from "../model/story.model";
 import { User, userDocument } from "../model/user.model";
 import { apiResponse } from "../utils/apiResponse";
-import { findAllStoryByUserId } from "../services/mongoose.service";
+import { findAllStoryByUserId, getAllStories } from "../services/mongoose.service";
 
 // save new story created by User in database
 export const saveNewStories = asyncHandler(async (req: Request, res: Response) => {
@@ -22,6 +22,7 @@ export const saveNewStories = asyncHandler(async (req: Request, res: Response) =
     try {
         const newStory = await Story.create({
             title: data.title,
+            description: data.description,
             content: data.content,
             userID: currentUser._id,
         })
@@ -45,7 +46,7 @@ export const getAllStoriesByUserId = asyncHandler(async (req: Request, res: Resp
     const userId = user._id;
 
     const result = await findAllStoryByUserId(userId.toString());
-    console.log("all story is : ",result)
+    console.log("all story is : ", result)
     if (result.length === 0) {
         return res.status(201).json(
             new apiResponse(201, "there is no story you have created", {})
@@ -54,6 +55,23 @@ export const getAllStoriesByUserId = asyncHandler(async (req: Request, res: Resp
     if (result.length !== 0) {
         return res.status(200).json(
             new apiResponse(200, "fetch all story by current user", result)
+        )
+    }
+})
+
+
+
+// get all the stories from database
+export const getAllStory = asyncHandler(async (req: Request, res: Response) => {
+    const result = await getAllStories();
+    if (result.length === 0) {
+        return res.status(201).json(
+            new apiResponse(201, "there is no story here ....", {})
+        )
+    }
+    if (result.length !== 0) {
+        return res.status(201).json(
+            new apiResponse(201, "fetch all the stories..", result)
         )
     }
 })
