@@ -16,11 +16,14 @@ export class apiError extends Error {
         super(message);
 
         this.statusCode = statusCode;
-        this.message = message;
         this.data = data;
         this.errors = errors;
         this.success = success;
 
+
+        // Ensures the error's prototype is set to apiError
+        Object.setPrototypeOf(this, apiError.prototype);
+        
         if (stack) {
             this.stack = stack;
         } else {

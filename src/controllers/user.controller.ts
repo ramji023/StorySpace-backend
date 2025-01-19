@@ -58,7 +58,7 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
 // return the current user data
 export const currentUser = asyncHandler(async (req: Request, res: Response) => {
     if (!req.user) {
-        throw new apiError(404, "user is not authorized")
+        throw new apiError(401, "user is not authorized")
     }
     const user = req.user
     console.log("authorized current user is : ", user)
@@ -73,7 +73,7 @@ export const currentUser = asyncHandler(async (req: Request, res: Response) => {
 export const refreshedTokens = asyncHandler(async (req: Request, res: Response) => {
     // get the refreshed token
     if (!req.cookies || !req.cookies.RefreshToken) {
-        throw new apiError(401, "user don't have any tokens")
+        throw new apiError(404, "user don't have any tokens")
     }
     const CurrrefreshToken = req.cookies.RefreshToken;
 
