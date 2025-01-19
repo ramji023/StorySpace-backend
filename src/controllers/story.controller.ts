@@ -4,7 +4,8 @@ import { Request, Response } from "express";
 import { Story } from "../model/story.model";
 import { User, userDocument } from "../model/user.model";
 import { apiResponse } from "../utils/apiResponse";
-import { findAllStoryByUserId, getAllStories } from "../services/mongoose.service";
+import { findAllStoryByUserId, getAllStories, getCompleteDataOfaStory } from "../services/mongoose.service";
+import mongoose from "mongoose";
 
 // save new story created by User in database
 export const saveNewStories = asyncHandler(async (req: Request, res: Response) => {
@@ -74,4 +75,20 @@ export const getAllStory = asyncHandler(async (req: Request, res: Response) => {
             new apiResponse(201, "fetch all the stories..", result)
         )
     }
+})
+
+
+
+// get a details story data of a story
+export const getDetailedStoryData = asyncHandler(async (req: Request, res: Response) => {
+    const storyId = req.params.storyId;
+    console.log(typeof storyId)
+    console.log("story id is : ", storyId);
+    if (!storyId) {
+        throw new apiError(404, "story id is required")
+    }
+    const result = await getCompleteDataOfaStory(new mongoose.Types.ObjectId(storyId));
+    return res.status(201).json(
+        new apiResponse(201, "fetch complete data of a story", result)
+    )
 })

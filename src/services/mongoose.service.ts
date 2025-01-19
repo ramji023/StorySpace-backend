@@ -195,7 +195,7 @@ export const getAllStories = async () => {
     const sortStories = getAllStories.map((story) => (
         {
             id: story._id.toString(),
-            author:story.author,
+            author: story.author,
             title: story.title,
             description: story.description + "..." || "No content available...",
             image: extractImageFromContent(story.content) || "default-image-url.jpg",
@@ -208,3 +208,70 @@ export const getAllStories = async () => {
     return sortStories;
 }
 
+
+// get complete story data of a story
+export const getCompleteDataOfaStory = async (storyId: mongoose.Types.ObjectId) => {
+    const pipeline = [
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(storyId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "userID",
+                foreignField: "_id",
+                as: "userDetail"
+            }
+        },
+        {
+            $unwind: "$userDetail"
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "storyId",
+                as: "likeDetails"
+            }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "storyId",
+                as: "commentResult",
+            }
+        },
+        {
+            $addFields: {
+                author: "$userDetail.username",
+                likeCount: { $size: "$likeDetails" },
+                commentCount: { $size: "$commentResult" }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                content: 1,
+                description: 1,
+                author: 1,
+                likeCount: 1,
+                commentCount: 1,
+                createdAt: 1,
+            }
+        }
+    ]
+
+    const getFullStory = await Story.aggregate(pipeline);
+    if (!getFullStory) {
+        throw new apiError(404, "something is wwong while fetching complete data of a story")
+    }
+
+    let updateStoryData = getFullStory[0];
+    updateStoryData = { ...updateStoryData, createdAt: formatDate(updateStoryData.createdAt) }
+    console.log("get complete data of a story : ", updateStoryData);
+    return updateStoryData;
+}

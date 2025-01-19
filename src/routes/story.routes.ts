@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router()
 import { verifyUser } from "../middlewares/auth.middleware";
-import { getAllStoriesByUserId, getAllStory, saveNewStories } from "../controllers/story.controller";
+import { getAllStoriesByUserId, getAllStory, getDetailedStoryData, saveNewStories } from "../controllers/story.controller";
 
 
 // save new story 
@@ -11,4 +11,6 @@ router.route("/getAllStoriesOfCurrentUser").get(verifyUser, getAllStoriesByUserI
 
 //fetch all the stories
 router.route("/getAllStories").get(getAllStory);
+//fetch complete data of a story
+router.route("/getStory/:storyId").get(getDetailedStoryData);
 export default router;
