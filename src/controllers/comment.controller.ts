@@ -24,7 +24,7 @@ export const writeCommentByUser = asyncHandler(async (req: Request, res: Respons
     if (!content) {
         throw new apiError(404, "comment content is required")
     }
-
+    console.log(content);
     await Comment.create({
         content: content,
         userId: user._id,

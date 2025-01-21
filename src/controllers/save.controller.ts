@@ -5,6 +5,7 @@ import { apiError } from "../utils/apiError";
 import { apiResponse } from "../utils/apiResponse";
 import mongoose from "mongoose";
 import { Save } from "../model/saveStory.model";
+import { getAllSavedStories } from "../services/mongoose.service";
 
 // handle toogle the like button by user
 export const toggleSaveStories = asyncHandler(async (req: Request, res: Response) => {
@@ -45,4 +46,24 @@ export const toggleSaveStories = asyncHandler(async (req: Request, res: Response
             new apiResponse(200, `user ${action} the story successfully`, {})
         )
     }
+})
+
+
+
+// define controller to fetch all the saved blogs of current user
+export const getAllSavedStory = asyncHandler(async (req: Request, res: Response) => {
+    const user = req.user as userDocument;
+    if (!user) {
+        throw new apiError(401, "user is not authorized")
+    }
+    console.log(user._id.toString());
+    const result = await getAllSavedStories(user._id.toString());
+    if (!result) {
+        return res.status(200).json(
+            new apiResponse(200, "there is no save story you have liked yet", {})
+        )
+    }
+    return res.status(200).json(
+        new apiResponse(200, "fetch all saved story", result)
+    )
 })

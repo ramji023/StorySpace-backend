@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 // handle toogle the like button by user
 export const toggleLikeStories = asyncHandler(async (req: Request, res: Response) => {
     const user = req.user as userDocument;
+    console.log("user is : ", user);
     if (!user) {
         throw new apiError(401, "user is not authorized")
     }
@@ -22,10 +23,13 @@ export const toggleLikeStories = asyncHandler(async (req: Request, res: Response
     if (!req.query || !req.query.action) {
         throw new apiError(404, "something went wrong while getting user action from params")
     }
+    console.log("get the query from request : ",req.query);
     const action = req.query.action as string;
+    console.log("action is : ", action);
     if (action !== "like" && action !== "dislike") {
         throw new apiError(404, "user send invalid action in query")
     }
+   
     // now check user already like/dislike the story
     const existedLikeDocument = await Like.findOne({ storyId, userId: user._id });
     if (existedLikeDocument) {

@@ -2,6 +2,7 @@ import mongoose, { Schema, Types } from "mongoose";
 import { Story } from "../model/story.model";
 import { User } from "../model/user.model"
 import { apiError } from "../utils/apiError";
+import { Save } from "../model/saveStory.model";
 
 
 // find the user by their id
@@ -49,7 +50,7 @@ export const generateAccessAndRefreshToken = async (userID: string) => {
 
 
 
-//find all the recipe by User
+//find all the story by User
 export const findAllStoryByUserId = async (userId: string) => {
     const showStorySnippetToCurrentUser = [
         {
@@ -274,4 +275,97 @@ export const getCompleteDataOfaStory = async (storyId: mongoose.Types.ObjectId) 
     updateStoryData = { ...updateStoryData, createdAt: formatDate(updateStoryData.createdAt) }
     console.log("get complete data of a story : ", updateStoryData);
     return updateStoryData;
+}
+
+
+
+// get saved story by current user
+export const getAllSavedStories = async (userId: string) => {
+    const showSavedStoryOfCurrentUser = [
+        {
+            $match: {
+                userId: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "stories",
+                localField: "storyId",
+                foreignField: "_id",
+                as: "storyDetails"
+            }
+        },
+        {
+            $unwind: {
+                path: "$storyDetails", // Unwind the array to simplify the structure
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "storyDetails.userID",
+                foreignField: "_id",
+                as: "authorDetails"
+            }
+        },
+        {
+            $addFields: {
+                "storyDetails.authorName": { $arrayElemAt: ["$authorDetails.username", 0] }, // Add the author's name to the storyDetails
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "storyId",
+                foreignField: "storyId",
+                as: "likedetails"
+            }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                localField: "storyId",
+                foreignField: "storyId",
+                as: "commentDetails"
+            }
+        },
+        {
+            $addFields: {
+                "likeCount": { $size: "$likedetails" },
+                "commentCount": { $size: "$commentDetails" }
+            }
+        },
+        {
+            $project: {
+                "_id": "$storyDetails._id",
+                "title": "$storyDetails.title",
+                "description": "$storyDetails.description",
+                "content": "$storyDetails.content",
+                "authorName": "$storyDetails.authorName",
+                "createdAt": "$storyDetails.createdAt",
+                "likeCount": 1,
+                "commentCount": 1,
+            }
+        }
+    ]
+
+    const allStories = await Save.aggregate(showSavedStoryOfCurrentUser);
+    console.log("all saved stories fetched for current user : ", allStories);
+
+    // If no stories are found, return an empty array
+    if (allStories.length === 0) {
+        return [];
+    }
+
+    const sortStories = allStories.map((story) => ({
+        id: story._id.toString(),
+        title: story.title || "Untitled",
+        description: story.description + "..." || "No content available...",
+        image: extractImageFromContent(story.content) || "default-image-url.jpg",
+        likeCount: story.likeCount || 0,
+        commentCount: story.commentCount || 0,
+        createdAt: formatDate(story.createdAt),
+    }));
+    return sortStories;
 }
