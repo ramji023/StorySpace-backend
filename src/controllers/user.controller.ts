@@ -137,3 +137,26 @@ export const addAdditionalData = asyncHandler(async (req: Request, res: Response
     }
 })
 
+//handle route to add user profile image
+export const setProfileImage = asyncHandler(async (req: Request, res: Response) => {
+    const user = req.user as userDocument;
+    if (!user) {
+        throw new apiError(401, "user is not authorized......")
+    }
+    const { profileImage } = req.body;
+    if (profileImage.length === 0) {
+        throw new apiError(404, "profile image is not provided..")
+    }
+    console.log("profile image url is : ", req.body);
+    console.log("profile : ",profileImage)
+    const existedUser = await findById(user._id.toString());
+    if (!existedUser) {
+        throw new apiError(404, "user is not in the database")
+    }
+    if (existedUser) {
+        existedUser.profileImage = profileImage
+        existedUser.save({ validateBeforeSave: false })
+        return res.status(201).json(new apiResponse(201, "profile image add successfully", {}))
+    }
+
+})

@@ -1,4 +1,4 @@
-import { addAdditionalData, currentUser, refreshedTokens, testRoute } from "../controllers/user.controller";
+import { addAdditionalData, currentUser, refreshedTokens, setProfileImage, testRoute } from "../controllers/user.controller";
 import { Router } from "express";
 import passport from "passport";
 const router = Router();
@@ -17,4 +17,6 @@ router.route("/current-user").get(verifyUser, currentUser);
 router.route("/refreshed-token").post(refreshedTokens);
 // add additional data
 router.route("/complete-profile").post(verifyUser, addAdditionalData);
+// set profile image
+router.route("/update-profile-image").post(verifyUser,setProfileImage);
 export default router;
