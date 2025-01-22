@@ -6,10 +6,19 @@ interface userInput {
     email: string;
     socialId: string,
     refreshToken?: string,
+    bio?: string,
+    UserLocation?: string,
+    company?: string,
+    website?: string,
+    socialLinks?: {
+        linkedin?: string,
+        twitter?: string,
+    },
+    profileImage?:string,
 }
 
 export interface userDocument extends userInput, Document {
-    _id : mongoose.Types.ObjectId,
+    _id: mongoose.Types.ObjectId,
     generateAccessToken(): string,
     generateRefreshToken(): string,
 }
@@ -29,6 +38,29 @@ const userSchema = new Schema<userDocument>({
     },
     refreshToken: {
         type: String,
+    },
+    bio: {
+        type: String,
+    },
+    UserLocation: {
+        type: String,
+    },
+    company: {
+        type: String,
+    },
+    website: {
+        type: String,
+    },
+    socialLinks: {
+        linkedin: {
+            type: String,
+        },
+        twitter: {
+            type: String,
+        }
+    },
+    profileImage : {
+  type:String,
     }
 }, { timestamps: true })
 

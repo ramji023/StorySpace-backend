@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { apiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { apiError } from "../utils/apiError";
-import { User } from "../model/user.model";
+import { User, userDocument } from "../model/user.model";
 import { findById, findUserByTheirEmail, generateAccessAndRefreshToken } from "../services/mongoose.service";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
@@ -102,3 +102,38 @@ export const refreshedTokens = asyncHandler(async (req: Request, res: Response) 
 
 
 })
+
+
+// add additional data to user document
+export const addAdditionalData = asyncHandler(async (req: Request, res: Response) => {
+    const user = req.user as userDocument;
+    if (!user) {
+        throw new apiError(401, "user is not authorized...");
+    }
+    const data = req.body;
+    if (!data) {
+        throw new apiError(404, "data is not provided in request body")
+    }
+    console.log("get data from client side : ", data)
+    //first find the user
+    const existedUser = await findById(user._id.toString());
+    if (!existedUser) {
+        throw new apiError(404, "user is not exist in database");
+    }
+
+    if (existedUser) {
+        try {
+            existedUser.bio = data.bio;
+            existedUser.UserLocation = data.UserLocation;
+            existedUser.company = data.company;
+            existedUser.website = data.website;
+            existedUser.socialLinks.linkedin = data.socialLinks.linkedin;
+            existedUser.socialLinks.twitter = data.socialLinks.twitter;
+            await existedUser.save({ validateBeforeSave: false })
+            return res.status(201).json(new apiResponse(201, "user added the profile successfully", {}))
+        } catch (error) {
+            throw new apiError(404, "something is wrong while updating field in database")
+        }
+    }
+})
+
