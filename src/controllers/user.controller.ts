@@ -23,34 +23,52 @@ export const userRegistration = asyncHandler(async (req: any, res: Response) => 
         throw new apiError(400, "something is wrong while registering through google ")
     }
 
-    await User.create(
-        {
-            username: user.username,
-            email: user.email,
-            socialId: user.socialId,
-        }
-    )
+    //check user is already registered or not
+    const existedUser = await findUserByTheirEmail(user.username, user.email);
+    if (!existedUser) {
+        await User.create(
+            {
+                username: user.username,
+                email: user.email,
+                socialId: user.socialId,
+            }
+        )
 
-    const findUser = await findUserByTheirEmail(user.username, user.email)
-    console.log("after saving in database : ", findUser);
+        const findUser = await findUserByTheirEmail(user.username, user.email)
+        console.log("after saving in database : ", findUser);
 
-    if (findUser) {
-        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(findUser._id.toString())
-        console.log("jwt tokens are : ", { accessToken, refreshToken })
-        const options = {
-            httpOnly: true,
-            secure: true,
+        if (findUser) {
+            const { accessToken, refreshToken } = await generateAccessAndRefreshToken(findUser._id.toString())
+            console.log("jwt tokens are : ", { accessToken, refreshToken })
+            const options = {
+                httpOnly: true,
+                secure: true,
+            }
+            res.cookie("AccessToken", accessToken, options)
+            res.cookie("RefreshToken", refreshToken, options);
+            // res.status(201).json(
+            //     new apiResponse(201, "User registration successfully..", findUser)
+            // )
+            res.redirect(process.env.REDIRECT_URL!);
+        } else {
+            throw new apiError(400, "something is wrong while saving in database")
         }
-        res.cookie("AccessToken", accessToken, options)
-        res.cookie("RefreshToken", refreshToken, options);
-        // res.status(201).json(
-        //     new apiResponse(201, "User registration successfully..", findUser)
-        // )
-        res.redirect('http://localhost:5173/');
-    } else {
-        throw new apiError(400, "something is wrong while saving in database")
     }
-
+    if (existedUser) {
+        try {
+            const { accessToken, refreshToken } = await generateAccessAndRefreshToken(existedUser._id.toString())
+            console.log("jwt tokens are : ", { accessToken, refreshToken })
+            const options = {
+                httpOnly: true,
+                secure: true,
+            }
+            res.cookie("AccessToken", accessToken, options)
+            res.cookie("RefreshToken", refreshToken, options);
+            res.redirect(process.env.REDIRECT_URL!);
+        } catch (error) {
+            throw new apiError(404, "something is wrong while generating tokens")
+        }
+    }
 })
 
 
@@ -148,7 +166,7 @@ export const setProfileImage = asyncHandler(async (req: Request, res: Response) 
         throw new apiError(404, "profile image is not provided..")
     }
     console.log("profile image url is : ", req.body);
-    console.log("profile : ",profileImage)
+    console.log("profile : ", profileImage)
     const existedUser = await findById(user._id.toString());
     if (!existedUser) {
         throw new apiError(404, "user is not in the database")
