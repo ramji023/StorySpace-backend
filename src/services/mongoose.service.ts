@@ -167,6 +167,7 @@ export const getAllStories = async () => {
         {
             $addFields: {
                 author: "$userDetail.username",
+                profileImage: "$userDetail.profileImage",
                 likeCount: { $size: "$likeDetails" },
                 commentCount: { $size: "$commentResult" }
             }
@@ -178,6 +179,7 @@ export const getAllStories = async () => {
                 content: 1,
                 description: 1,
                 author: 1,
+                profileImage: 1,
                 likeCount: 1,
                 commentCount: 1,
                 createdAt: 1,
@@ -197,6 +199,7 @@ export const getAllStories = async () => {
         {
             id: story._id.toString(),
             author: story.author,
+            profileImage: story.profileImage,
             title: story.title,
             description: story.description + "..." || "No content available...",
             image: extractImageFromContent(story.content) || "default-image-url.jpg",
@@ -248,6 +251,8 @@ export const getCompleteDataOfaStory = async (storyId: mongoose.Types.ObjectId) 
         {
             $addFields: {
                 author: "$userDetail.username",
+                bio: "$userDetail.bio",
+                profileImage: "$userDetail.profileImage",
                 likeCount: { $size: "$likeDetails" },
                 commentCount: { $size: "$commentResult" }
             }
@@ -259,6 +264,8 @@ export const getCompleteDataOfaStory = async (storyId: mongoose.Types.ObjectId) 
                 content: 1,
                 description: 1,
                 author: 1,
+                bio: 1,
+                profileImage: 1,
                 likeCount: 1,
                 commentCount: 1,
                 createdAt: 1,
